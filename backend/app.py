@@ -99,6 +99,64 @@ def upload_pdf():
         return jsonify({"error": f"Ошибка при обработке запроса: {str(e)}"}), 500
 
 
+@app.route('/api/process-text', methods=['POST'])
+def process_text():
+    """Обрабатывает вставленный текст и генерирует тест."""
+    try:
+        data = request.get_json()
+        
+        # Проверяем наличие текста
+        if not data or 'text' not in data:
+            return jsonify({"error": "Текст не найден в запросе"}), 400
+        
+        text = data.get('text', '').strip()
+        
+        if not text:
+            return jsonify({"error": "Текст не может быть пустым"}), 400
+        
+        # Получаем количество вопросов
+        try:
+            num_questions = int(data.get('num_questions', 0))
+        except (ValueError, TypeError):
+            num_questions = 0
+        
+        if not num_questions or num_questions < 1:
+            return jsonify({"error": "Количество вопросов должно быть положительным числом"}), 400
+        
+        if num_questions > 50:
+            return jsonify({"error": "Максимальное количество вопросов - 50"}), 400
+        
+        # Получаем тип модели (по умолчанию openrouter)
+        model_type = data.get('model_type', 'openrouter')
+        
+        # Валидация типа модели
+        valid_models = ['openrouter', 'ollama-mistral']
+        if model_type not in valid_models:
+            return jsonify({"error": f"Неизвестный тип модели. Доступные: {', '.join(valid_models)}"}), 400
+        
+        # Формируем контент в том же формате, что и для PDF
+        text_content = {
+            "text": text,
+            "images": [],  # Текстовый режим не поддерживает изображения
+            "total_pages": 0
+        }
+        
+        # Создаем клиент модели и генерируем вопросы
+        model_client = create_model_client(model_type)
+        questions = model_client.generate_quiz_questions(text_content, num_questions)
+        
+        return jsonify({
+            "success": True,
+            "questions": questions,
+            "total_questions": len(questions)
+        })
+            
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Ошибка при обработке запроса: {str(e)}"}), 500
+
+
 if __name__ == '__main__':
     # Проверяем наличие API ключа (только для OpenRouter)
     if not os.getenv("OPENROUTER_API_KEY"):

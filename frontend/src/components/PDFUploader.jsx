@@ -3,7 +3,9 @@ import axios from 'axios';
 import './PDFUploader.css';
 
 function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
+  const [inputMode, setInputMode] = useState('pdf'); // 'pdf' или 'text'
   const [file, setFile] = useState(null);
+  const [text, setText] = useState('');
   const [numQuestions, setNumQuestions] = useState(10);
   const [selectedModel, setSelectedModel] = useState('openrouter');
   const [dragActive, setDragActive] = useState(false);
@@ -47,9 +49,16 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!file) {
-      onError('Пожалуйста, выберите PDF файл');
-      return;
+    if (inputMode === 'pdf') {
+      if (!file) {
+        onError('Пожалуйста, выберите PDF файл');
+        return;
+      }
+    } else {
+      if (!text.trim()) {
+        onError('Пожалуйста, введите текст');
+        return;
+      }
     }
 
     if (numQuestions < 1 || numQuestions > 50) {
@@ -57,20 +66,34 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('num_questions', numQuestions);
-    formData.append('model_type', selectedModel);
-
     onLoading(true);
     onError(null);
 
     try {
-      const response = await axios.post('/api/upload-pdf', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      let response;
+      
+      if (inputMode === 'pdf') {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('num_questions', numQuestions);
+        formData.append('model_type', selectedModel);
+
+        response = await axios.post('/api/upload-pdf', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      } else {
+        response = await axios.post('/api/process-text', {
+          text: text,
+          num_questions: numQuestions,
+          model_type: selectedModel
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }
 
       if (response.data.success) {
         onQuizGenerated(response.data);
@@ -78,7 +101,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
         onError(response.data.error || 'Ошибка при генерации теста');
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.error || error.message || 'Ошибка при загрузке файла';
+      const errorMessage = error.response?.data?.error || error.message || 'Ошибка при обработке запроса';
       onError(errorMessage);
     } finally {
       onLoading(false);
@@ -88,39 +111,101 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
   return (
     <div className="pdf-uploader">
       <form onSubmit={handleSubmit} className="upload-form">
-        <div
-          className={`drop-zone ${dragActive ? 'drag-active' : ''} ${file ? 'has-file' : ''}`}
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-        >
-          <input
-            type="file"
-            id="file-input"
-            accept=".pdf"
-            onChange={handleFileChange}
-            className="file-input"
-          />
-          <label htmlFor="file-input" className="drop-zone-label">
-            {file ? (
-              <>
-                <span className="file-icon">📄</span>
-                <span className="file-name">{file.name}</span>
-                <span className="file-size">
-                  {(file.size / 1024 / 1024).toFixed(2)} MB
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="upload-icon">📤</span>
-                <span className="upload-text">
-                  Перетащите PDF файл сюда или нажмите для выбора
-                </span>
-              </>
-            )}
+        <div className="form-group">
+          <label className="form-label">
+            Режим ввода:
           </label>
+          <div className="input-mode-selector">
+            <label className="mode-option">
+              <input
+                type="radio"
+                name="inputMode"
+                value="pdf"
+                checked={inputMode === 'pdf'}
+                onChange={(e) => {
+                  setInputMode(e.target.value);
+                  setFile(null);
+                  setText('');
+                }}
+                disabled={loading}
+              />
+              <span className="mode-label">
+                <span className="mode-name">📄 PDF файл</span>
+              </span>
+            </label>
+            <label className="mode-option">
+              <input
+                type="radio"
+                name="inputMode"
+                value="text"
+                checked={inputMode === 'text'}
+                onChange={(e) => {
+                  setInputMode(e.target.value);
+                  setFile(null);
+                  setText('');
+                }}
+                disabled={loading}
+              />
+              <span className="mode-label">
+                <span className="mode-name">📝 Текст</span>
+              </span>
+            </label>
+          </div>
         </div>
+
+        {inputMode === 'pdf' ? (
+          <div
+            className={`drop-zone ${dragActive ? 'drag-active' : ''} ${file ? 'has-file' : ''}`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+            <input
+              type="file"
+              id="file-input"
+              accept=".pdf"
+              onChange={handleFileChange}
+              className="file-input"
+            />
+            <label htmlFor="file-input" className="drop-zone-label">
+              {file ? (
+                <>
+                  <span className="file-icon">📄</span>
+                  <span className="file-name">{file.name}</span>
+                  <span className="file-size">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="upload-icon">📤</span>
+                  <span className="upload-text">
+                    Перетащите PDF файл сюда или нажмите для выбора
+                  </span>
+                </>
+              )}
+            </label>
+          </div>
+        ) : (
+          <div className="form-group">
+            <label htmlFor="text-input" className="form-label">
+              Введите текст:
+            </label>
+            <textarea
+              id="text-input"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              className="text-input"
+              placeholder="Вставьте или введите текст для генерации теста..."
+              rows={10}
+              disabled={loading}
+            />
+            <div className="text-counter">
+              {text.length} символов
+            </div>
+          </div>
+        )}
 
         <div className="form-group">
           <label htmlFor="num-questions" className="form-label">
@@ -177,7 +262,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
         <button
           type="submit"
           className="submit-button"
-          disabled={!file || loading}
+          disabled={(inputMode === 'pdf' && !file) || (inputMode === 'text' && !text.trim()) || loading}
         >
           {loading ? '⏳ Генерация теста...' : '🚀 Создать тест'}
         </button>
