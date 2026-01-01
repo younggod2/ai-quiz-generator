@@ -50,6 +50,7 @@ Thumbs.db
 # Logs
 backend.log
 frontend.log
+ollama.log
 
 
 
