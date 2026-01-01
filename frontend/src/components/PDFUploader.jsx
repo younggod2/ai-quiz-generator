@@ -259,12 +259,24 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
           </div>
         </div>
 
+        {loading && (
+          <div className="loading-container">
+            <div className="loading-text">
+              <span className="loading-icon">⏳</span>
+              <span>Генерация теста...</span>
+            </div>
+            <div className="progress-bar-container">
+              <div className="progress-bar"></div>
+            </div>
+          </div>
+        )}
+
         <button
           type="submit"
           className="submit-button"
           disabled={(inputMode === 'pdf' && !file) || (inputMode === 'text' && !text.trim()) || loading}
         >
-          {loading ? '⏳ Генерация теста...' : '🚀 Создать тест'}
+          🚀 Создать тест
         </button>
       </form>
     </div>
