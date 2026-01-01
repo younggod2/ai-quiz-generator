@@ -11,9 +11,7 @@ function QuizCard({ question, questionNumber, totalQuestions, onAnswer }) {
     setSelectedAnswer(answerIndex);
     setShowResult(true);
 
-    const isCorrect = question.type === 'multiple_choice'
-      ? answerIndex === question.correct_answer
-      : answerIndex === (question.correct_answer ? 0 : 1);
+    const isCorrect = answerIndex === question.correct_answer;
 
     onAnswer(isCorrect);
   };
@@ -22,9 +20,7 @@ function QuizCard({ question, questionNumber, totalQuestions, onAnswer }) {
     if (!showResult) return 'answer-option';
     
     const isSelected = selectedAnswer === answerIndex;
-    const isCorrect = question.type === 'multiple_choice'
-      ? answerIndex === question.correct_answer
-      : answerIndex === (question.correct_answer ? 0 : 1);
+    const isCorrect = answerIndex === question.correct_answer;
 
     if (isSelected && isCorrect) {
       return 'answer-option correct';
@@ -43,7 +39,7 @@ function QuizCard({ question, questionNumber, totalQuestions, onAnswer }) {
           Вопрос {questionNumber} из {totalQuestions}
         </span>
         <span className="question-type">
-          {question.type === 'multiple_choice' ? 'Выберите один вариант' : 'Верно/Неверно'}
+          Выберите один вариант
         </span>
       </div>
 
@@ -52,52 +48,27 @@ function QuizCard({ question, questionNumber, totalQuestions, onAnswer }) {
       </div>
 
       <div className="answers-container">
-        {question.type === 'multiple_choice' ? (
-          question.options.map((option, index) => (
-            <button
-              key={index}
-              className={getAnswerClass(index)}
-              onClick={() => handleAnswerClick(index)}
-              disabled={showResult}
-            >
-              <span className="option-letter">
-                {String.fromCharCode(65 + index)}
-              </span>
-              <span className="option-text">{option}</span>
-              {showResult && index === question.correct_answer && (
-                <span className="correct-mark">✓</span>
-              )}
-            </button>
-          ))
-        ) : (
-          <>
-            <button
-              className={getAnswerClass(0)}
-              onClick={() => handleAnswerClick(0)}
-              disabled={showResult}
-            >
-              <span className="option-text">Верно</span>
-              {showResult && question.correct_answer && (
-                <span className="correct-mark">✓</span>
-              )}
-            </button>
-            <button
-              className={getAnswerClass(1)}
-              onClick={() => handleAnswerClick(1)}
-              disabled={showResult}
-            >
-              <span className="option-text">Неверно</span>
-              {showResult && !question.correct_answer && (
-                <span className="correct-mark">✓</span>
-              )}
-            </button>
-          </>
-        )}
+        {question.options.map((option, index) => (
+          <button
+            key={index}
+            className={getAnswerClass(index)}
+            onClick={() => handleAnswerClick(index)}
+            disabled={showResult}
+          >
+            <span className="option-letter">
+              {String.fromCharCode(65 + index)}
+            </span>
+            <span className="option-text">{option}</span>
+            {showResult && index === question.correct_answer && (
+              <span className="correct-mark">✓</span>
+            )}
+          </button>
+        ))}
       </div>
 
       {showResult && (
-        <div className={`result-message ${selectedAnswer === (question.type === 'multiple_choice' ? question.correct_answer : (question.correct_answer ? 0 : 1)) ? 'correct' : 'incorrect'}`}>
-          {selectedAnswer === (question.type === 'multiple_choice' ? question.correct_answer : (question.correct_answer ? 0 : 1)) 
+        <div className={`result-message ${selectedAnswer === question.correct_answer ? 'correct' : 'incorrect'}`}>
+          {selectedAnswer === question.correct_answer 
             ? '✅ Правильно!' 
             : '❌ Неправильно'}
         </div>

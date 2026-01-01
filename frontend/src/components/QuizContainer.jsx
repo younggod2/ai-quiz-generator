@@ -62,7 +62,7 @@ function QuizContainer({ questions, onReset }) {
   }
 
   const currentQuestion = questions[currentQuestionIndex];
-  // Проверяем, что ответ был дан (может быть true или false, но не undefined)
+  // Проверяем, что ответ был дан (не undefined)
   const hasAnswered = typeof answers[currentQuestionIndex] !== 'undefined';
 
   return (

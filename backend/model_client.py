@@ -29,10 +29,6 @@ def normalize_questions(questions: List[Dict]) -> List[Dict]:
                 # Если это буква (A, B, C, D), конвертируем в индекс
                 answer_map = {"A": 0, "B": 1, "C": 2, "D": 3, "a": 0, "b": 1, "c": 2, "d": 3}
                 normalized_q["correct_answer"] = answer_map.get(normalized_q["correct_answer"], 0)
-        elif normalized_q["type"] == "true_false":
-            # Убеждаемся, что correct_answer - это boolean
-            if isinstance(normalized_q["correct_answer"], str):
-                normalized_q["correct_answer"] = normalized_q["correct_answer"].lower() in ["true", "верно", "да"]
         
         normalized_questions.append(normalized_q)
     
@@ -81,9 +77,9 @@ class OpenRouterClient(ModelClient):
         """Генерирует вопросы для теста на основе содержимого PDF через OpenRouter API."""
         
         # Компактный промпт для экономии токенов
-        system_prompt = """Создай вопросы теста на основе контента. Типы: multiple_choice (4 варианта) и true_false. На русском. Только JSON.
+        system_prompt = """Создай вопросы теста на основе контента. Тип: multiple_choice (4 варианта). На русском. Только JSON.
 
-Формат: {"questions": [{"id": 1, "question": "...", "type": "multiple_choice"/"true_false", "options": ["A","B","C","D"], "correct_answer": 0 или true/false}]}"""
+Формат: {"questions": [{"id": 1, "question": "...", "type": "multiple_choice", "options": ["A","B","C","D"], "correct_answer": 0}]}"""
         
         # Формируем сообщения для API
         messages = [
@@ -159,7 +155,7 @@ class OllamaClient(ModelClient):
     def __init__(self, model_name: str = "mistral", base_url: str = "http://localhost:11434"):
         self.model_name = model_name
         self.base_url = base_url
-        self.client = httpx.Client(timeout=300.0)  # Увеличенный таймаут для локальной модели
+        self.client = httpx.Client(timeout=100.0)  # Увеличенный таймаут для локальной модели
     
     def _check_ollama_available(self) -> bool:
         """Проверяет доступность Ollama сервера."""
@@ -180,9 +176,9 @@ class OllamaClient(ModelClient):
             )
         
         # Формируем промпт для Ollama
-        system_prompt = """Создай вопросы теста на основе контента. Типы: multiple_choice (4 варианта) и true_false. На русском. Только JSON.
+        system_prompt = """Создай вопросы теста на основе контента. Тип: multiple_choice (4 варианта). На русском. Только JSON.
 
-Формат: {"questions": [{"id": 1, "question": "...", "type": "multiple_choice"/"true_false", "options": ["A","B","C","D"], "correct_answer": 0 или true/false}]}"""
+Формат: {"questions": [{"id": 1, "question": "...", "type": "multiple_choice", "options": ["A","B","C","D"], "correct_answer": 0}]}"""
         
         # Формируем пользовательский промпт
         user_prompt = f"Создай {num_questions} вопросов для теста на основе следующего контента:\n\n"
@@ -191,11 +187,6 @@ class OllamaClient(ModelClient):
         if pdf_content.get("text"):
             # Для локальной модели можем использовать больше текста
             user_prompt += f"ТЕКСТ:\n{pdf_content['text'][:8000]}\n\n"
-        
-        # Примечание: Ollama Mistral 7B не поддерживает изображения напрямую через API
-        # Если есть изображения, просто упоминаем об этом в промпте
-        if pdf_content.get("images"):
-            user_prompt += f"В документе также есть {len(pdf_content.get('images', []))} изображений. Учти это при создании вопросов.\n\n"
         
         user_prompt += f"\nСоздай {num_questions} вопросов. Только JSON."
         
@@ -212,7 +203,7 @@ class OllamaClient(ModelClient):
                         "num_predict": min(num_questions * 200, 2000)  # Ограничение токенов
                     }
                 },
-                timeout=300.0
+                timeout=100.0
             )
             
             if response.status_code != 200:
