@@ -28,8 +28,8 @@ def _validate_quiz_parameters(num_questions, model_type):
     if not num_questions or num_questions < 1:
         raise ValueError("Количество вопросов должно быть положительным числом")
     
-    if num_questions > 50:
-        raise ValueError("Максимальное количество вопросов - 50")
+    if num_questions > 20:
+        raise ValueError("Максимальное количество вопросов - 20")
     
     valid_models = ['openrouter', 'ollama-mistral']
     if model_type not in valid_models:

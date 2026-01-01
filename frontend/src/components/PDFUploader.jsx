@@ -62,8 +62,8 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
       }
     }
 
-    if (numQuestions < 1 || numQuestions > 50) {
-      onError('Количество вопросов должно быть от 1 до 50');
+    if (numQuestions < 1 || numQuestions > 20) {
+      onError('Количество вопросов должно быть от 1 до 20');
       return;
     }
 
@@ -216,7 +216,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
             type="number"
             id="num-questions"
             min="1"
-            max="50"
+            max="20"
             value={numQuestionsInput}
             onChange={(e) => {
               const value = e.target.value;
@@ -236,9 +236,9 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
                 if (numValue < 1) {
                   setNumQuestionsInput('1');
                   setNumQuestions(1);
-                } else if (numValue > 50) {
-                  setNumQuestionsInput('50');
-                  setNumQuestions(50);
+                } else if (numValue > 20) {
+                  setNumQuestionsInput('20');
+                  setNumQuestions(20);
                 }
               }
             }}
