@@ -110,7 +110,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
   };
 
   return (
-    <div className="pdf-uploader">
+    <div className="pdf-uploader" data-testid="pdf-uploader">
       <form onSubmit={handleSubmit} className="upload-form">
         <div className="form-group">
           <label className="form-label">
@@ -129,6 +129,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
                   setText('');
                 }}
                 disabled={loading}
+                data-testid="input-mode-pdf"
               />
               <span className="mode-label">
                 <span className="mode-name">📄 PDF файл</span>
@@ -146,6 +147,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
                   setText('');
                 }}
                 disabled={loading}
+                data-testid="input-mode-text"
               />
               <span className="mode-label">
                 <span className="mode-name">📝 Текст</span>
@@ -161,6 +163,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
+            data-testid="drop-zone"
           >
             <input
               type="file"
@@ -168,6 +171,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
               accept=".pdf"
               onChange={handleFileChange}
               className="file-input"
+              data-testid="file-input"
             />
             <label htmlFor="file-input" className="drop-zone-label">
               {file ? (
@@ -201,8 +205,9 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
               placeholder="Вставьте или введите текст для генерации теста..."
               rows={10}
               disabled={loading}
+              data-testid="text-input"
             />
-            <div className="text-counter">
+            <div className="text-counter" data-testid="text-counter">
               {text.length} символов
             </div>
           </div>
@@ -244,6 +249,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
             }}
             className="number-input"
             disabled={loading}
+            data-testid="num-questions-input"
           />
         </div>
 
@@ -260,6 +266,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
                 checked={selectedModel === 'openrouter'}
                 onChange={(e) => setSelectedModel(e.target.value)}
                 disabled={loading}
+                data-testid="model-openrouter"
               />
               <span className="model-label">
                 <span className="model-name">OpenRouter</span>
@@ -274,6 +281,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
                 checked={selectedModel === 'ollama-mistral'}
                 onChange={(e) => setSelectedModel(e.target.value)}
                 disabled={loading}
+                data-testid="model-ollama-mistral"
               />
               <span className="model-label">
                 <span className="model-name">Mistral 7B</span>
@@ -284,7 +292,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
         </div>
 
         {loading && (
-          <div className="loading-container">
+          <div className="loading-container" data-testid="loading-container">
             <div className="loading-text">
               <span className="loading-icon">⏳</span>
               <span>Генерация теста...</span>
@@ -299,6 +307,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
           type="submit"
           className="submit-button"
           disabled={(inputMode === 'pdf' && !file) || (inputMode === 'text' && !text.trim()) || loading}
+          data-testid="submit-button"
         >
           🚀 Создать тест
         </button>

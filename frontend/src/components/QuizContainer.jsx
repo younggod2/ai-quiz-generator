@@ -85,10 +85,10 @@ function QuizContainer({ questions, onReset }) {
   if (showResults) {
     const score = calculateScore();
     return (
-      <div className="quiz-container">
-        <div className="results-screen">
+      <div className="quiz-container" data-testid="quiz-container">
+        <div className="results-screen" data-testid="results-screen">
           <h2>🎉 Тест завершен!</h2>
-          <div className="score-display">
+          <div className="score-display" data-testid="score-display">
             <div className="score-circle">
               <span className="score-percentage">{score.percentage}%</span>
               <span className="score-label">Правильных ответов</span>
@@ -97,7 +97,7 @@ function QuizContainer({ questions, onReset }) {
               <p>Правильных ответов: <strong>{score.correct}</strong> из <strong>{score.total}</strong></p>
             </div>
           </div>
-          <button className="reset-button" onClick={onReset}>
+          <button className="reset-button" onClick={onReset} data-testid="reset-button">
             🔄 Создать новый тест
           </button>
         </div>
@@ -112,14 +112,15 @@ function QuizContainer({ questions, onReset }) {
   const hasAnswered = typeof savedAnswer !== 'undefined';
 
   return (
-    <div className="quiz-container">
+    <div className="quiz-container" data-testid="quiz-container">
       <div className="quiz-header">
-        <button className="back-button" onClick={onReset}>
+        <button className="back-button" onClick={onReset} data-testid="back-button">
           ← Назад к загрузке
         </button>
-        <div className="quiz-progress-bar">
+        <div className="quiz-progress-bar" data-testid="quiz-progress-bar">
           <div
             className="quiz-progress-fill"
+            data-testid="quiz-progress-fill"
             style={{ transform: `scaleX(${(currentQuestionIndex + 1) / questions.length})` }}
           />
         </div>
@@ -134,11 +135,12 @@ function QuizContainer({ questions, onReset }) {
         savedAnswer={savedAnswer}
       />
 
-      <div className="navigation-buttons">
+      <div className="navigation-buttons" data-testid="navigation-buttons">
         <button
           className="nav-button prev-button"
           onClick={handlePrevious}
           disabled={currentQuestionIndex === 0}
+          data-testid="prev-button"
         >
           ← Предыдущий
         </button>
@@ -146,6 +148,7 @@ function QuizContainer({ questions, onReset }) {
           className="nav-button next-button"
           onClick={handleNext}
           disabled={!hasAnswered}
+          data-testid="next-button"
         >
           {currentQuestionIndex === questions.length - 1 ? 'Завершить тест →' : 'Следующий →'}
         </button>

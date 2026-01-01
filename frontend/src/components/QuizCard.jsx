@@ -49,9 +49,9 @@ function QuizCard({ question, questionNumber, totalQuestions, onAnswer, savedAns
   };
 
   return (
-    <div className="quiz-card">
+    <div className="quiz-card" data-testid="quiz-card">
       <div className="question-header">
-        <span className="question-number">
+        <span className="question-number" data-testid="question-number">
           Вопрос {questionNumber} из {totalQuestions}
         </span>
         <span className="question-type">
@@ -59,17 +59,18 @@ function QuizCard({ question, questionNumber, totalQuestions, onAnswer, savedAns
         </span>
       </div>
 
-      <div className="question-text">
+      <div className="question-text" data-testid="question-text">
         {question.question}
       </div>
 
-      <div className="answers-container">
+      <div className="answers-container" data-testid="answers-container">
         {question.options.map((option, index) => (
           <button
             key={index}
             className={getAnswerClass(index)}
             onClick={() => handleAnswerClick(index)}
             disabled={showResult}
+            data-testid={`answer-option-${index}`}
           >
             <span className="option-letter">
               {String.fromCharCode(65 + index)}
@@ -83,7 +84,7 @@ function QuizCard({ question, questionNumber, totalQuestions, onAnswer, savedAns
       </div>
 
       {showResult && (
-        <div className={`result-message ${selectedAnswer === question.correct_answer ? 'correct' : 'incorrect'}`}>
+        <div className={`result-message ${selectedAnswer === question.correct_answer ? 'correct' : 'incorrect'}`} data-testid="result-message">
           {selectedAnswer === question.correct_answer 
             ? '✅ Правильно!' 
             : '❌ Неправильно'}
