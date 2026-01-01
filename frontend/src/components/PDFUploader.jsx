@@ -7,6 +7,7 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
   const [file, setFile] = useState(null);
   const [text, setText] = useState('');
   const [numQuestions, setNumQuestions] = useState(10);
+  const [numQuestionsInput, setNumQuestionsInput] = useState('10');
   const [selectedModel, setSelectedModel] = useState('openrouter');
   const [dragActive, setDragActive] = useState(false);
 
@@ -216,8 +217,31 @@ function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
             id="num-questions"
             min="1"
             max="50"
-            value={numQuestions}
-            onChange={(e) => setNumQuestions(parseInt(e.target.value) || 1)}
+            value={numQuestionsInput}
+            onChange={(e) => {
+              const value = e.target.value;
+              setNumQuestionsInput(value);
+              const numValue = parseInt(value);
+              if (!isNaN(numValue) && value !== '') {
+                setNumQuestions(numValue);
+              }
+            }}
+            onBlur={(e) => {
+              const value = e.target.value;
+              if (value === '' || isNaN(parseInt(value))) {
+                setNumQuestionsInput('10');
+                setNumQuestions(10);
+              } else {
+                const numValue = parseInt(value);
+                if (numValue < 1) {
+                  setNumQuestionsInput('1');
+                  setNumQuestions(1);
+                } else if (numValue > 50) {
+                  setNumQuestionsInput('50');
+                  setNumQuestions(50);
+                }
+              }
+            }}
             className="number-input"
             disabled={loading}
           />

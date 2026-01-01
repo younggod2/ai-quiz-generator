@@ -12,7 +12,7 @@ CORS(app)
 # Настройки для загрузки файлов
 UPLOAD_FOLDER = tempfile.gettempdir()
 ALLOWED_EXTENSIONS = {'pdf'}
-MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
@@ -21,6 +21,33 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 def allowed_file(filename):
     """Проверяет, что файл имеет разрешенное расширение."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def _validate_quiz_parameters(num_questions, model_type):
+    """Валидирует параметры для генерации теста."""
+    if not num_questions or num_questions < 1:
+        raise ValueError("Количество вопросов должно быть положительным числом")
+    
+    if num_questions > 50:
+        raise ValueError("Максимальное количество вопросов - 50")
+    
+    valid_models = ['openrouter', 'ollama-mistral']
+    if model_type not in valid_models:
+        raise ValueError(f"Неизвестный тип модели. Доступные: {', '.join(valid_models)}")
+    
+    return True
+
+
+def _generate_quiz_from_content(content, num_questions, model_type):
+    """Генерирует вопросы из контента."""
+    # Валидация параметров
+    _validate_quiz_parameters(num_questions, model_type)
+    
+    # Создаем клиент модели и генерируем вопросы
+    model_client = create_model_client(model_type)
+    questions = model_client.generate_quiz_questions(content, num_questions)
+    
+    return questions
 
 
 @app.route('/api/health', methods=['GET'])
@@ -47,19 +74,8 @@ def upload_pdf():
         
         # Получаем количество вопросов
         num_questions = request.form.get('num_questions', type=int)
-        if not num_questions or num_questions < 1:
-            return jsonify({"error": "Количество вопросов должно быть положительным числом"}), 400
-        
-        if num_questions > 50:
-            return jsonify({"error": "Максимальное количество вопросов - 50"}), 400
-        
         # Получаем тип модели (по умолчанию openrouter)
         model_type = request.form.get('model_type', 'openrouter')
-        
-        # Валидация типа модели
-        valid_models = ['openrouter', 'ollama-mistral']
-        if model_type not in valid_models:
-            return jsonify({"error": f"Неизвестный тип модели. Доступные: {', '.join(valid_models)}"}), 400
         
         # Сохраняем файл временно
         filename = secure_filename(file.filename)
@@ -74,9 +90,8 @@ def upload_pdf():
             if not pdf_content.get("text") and not pdf_content.get("images"):
                 return jsonify({"error": "PDF документ пуст или не может быть обработан"}), 400
             
-            # Создаем клиент модели и генерируем вопросы
-            model_client = create_model_client(model_type)
-            questions = model_client.generate_quiz_questions(pdf_content, num_questions)
+            # Генерируем вопросы (валидация параметров внутри функции)
+            questions = _generate_quiz_from_content(pdf_content, num_questions, model_type)
             
             # Удаляем временный файл
             os.remove(filepath)
@@ -120,19 +135,8 @@ def process_text():
         except (ValueError, TypeError):
             num_questions = 0
         
-        if not num_questions or num_questions < 1:
-            return jsonify({"error": "Количество вопросов должно быть положительным числом"}), 400
-        
-        if num_questions > 50:
-            return jsonify({"error": "Максимальное количество вопросов - 50"}), 400
-        
         # Получаем тип модели (по умолчанию openrouter)
         model_type = data.get('model_type', 'openrouter')
-        
-        # Валидация типа модели
-        valid_models = ['openrouter', 'ollama-mistral']
-        if model_type not in valid_models:
-            return jsonify({"error": f"Неизвестный тип модели. Доступные: {', '.join(valid_models)}"}), 400
         
         # Формируем контент в том же формате, что и для PDF
         text_content = {
@@ -141,9 +145,8 @@ def process_text():
             "total_pages": 0
         }
         
-        # Создаем клиент модели и генерируем вопросы
-        model_client = create_model_client(model_type)
-        questions = model_client.generate_quiz_questions(text_content, num_questions)
+        # Генерируем вопросы (валидация параметров внутри функции)
+        questions = _generate_quiz_from_content(text_content, num_questions, model_type)
         
         return jsonify({
             "success": True,
