@@ -33,7 +33,8 @@ function QuizContainer({ questions, onReset }) {
         setCurrentQuestionIndex(0);
       }
     }
-  }, [questions, currentQuestionIndex]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questions]);
 
   // Сохраняем currentQuestionIndex в localStorage при изменении
   useEffect(() => {
@@ -116,9 +117,9 @@ function QuizContainer({ questions, onReset }) {
         <button className="back-button" onClick={onReset}>
           ← Назад к загрузке
         </button>
-        <div className="progress-bar">
+        <div className="quiz-progress-bar">
           <div
-            className="progress-fill"
+            className="quiz-progress-fill"
             style={{ transform: `scaleX(${(currentQuestionIndex + 1) / questions.length})` }}
           />
         </div>

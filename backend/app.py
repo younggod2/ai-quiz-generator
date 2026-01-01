@@ -12,7 +12,7 @@ CORS(app)
 # Настройки для загрузки файлов
 UPLOAD_FOLDER = tempfile.gettempdir()
 ALLOWED_EXTENSIONS = {'pdf'}
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
@@ -73,7 +73,10 @@ def upload_pdf():
             return jsonify({"error": "Разрешены только PDF файлы"}), 400
         
         # Получаем количество вопросов
-        num_questions = request.form.get('num_questions', type=int)
+        try:
+            num_questions = int(request.form.get('num_questions', 0))
+        except (ValueError, TypeError):
+            num_questions = 0
         # Получаем тип модели (по умолчанию openrouter)
         model_type = request.form.get('model_type', 'openrouter')
         

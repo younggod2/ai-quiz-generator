@@ -79,7 +79,9 @@ class OpenRouterClient(ModelClient):
         # Компактный промпт для экономии токенов
         system_prompt = """Создай вопросы теста на основе контента. Тип: multiple_choice (4 варианта). На русском. Только JSON.
 
-Формат: {"questions": [{"id": 1, "question": "...", "type": "multiple_choice", "options": ["A","B","C","D"], "correct_answer": 0}]}"""
+Формат: {"questions": [{"id": 1, "question": "Текст вопроса?", "type": "multiple_choice", "options": ["Полный текст варианта A", "Полный текст варианта B", "Полный текст варианта C", "Полный текст варианта D"], "correct_answer": 0}]}
+
+correct_answer - это индекс правильного ответа (0, 1, 2 или 3), где 0 = первый вариант, 1 = второй вариант и т.д."""
         
         # Формируем сообщения для API
         messages = [
@@ -178,7 +180,9 @@ class OllamaClient(ModelClient):
         # Формируем промпт для Ollama
         system_prompt = """Создай вопросы теста на основе контента. Тип: multiple_choice (4 варианта). На русском. Только JSON.
 
-Формат: {"questions": [{"id": 1, "question": "...", "type": "multiple_choice", "options": ["A","B","C","D"], "correct_answer": 0}]}"""
+Формат: {"questions": [{"id": 1, "question": "Текст вопроса?", "type": "multiple_choice", "options": ["Полный текст варианта A", "Полный текст варианта B", "Полный текст варианта C", "Полный текст варианта D"], "correct_answer": 0}]}
+
+correct_answer - это индекс правильного ответа (0, 1, 2 или 3), где 0 = первый вариант, 1 = второй вариант и т.д."""
         
         # Формируем пользовательский промпт
         user_prompt = f"Создай {num_questions} вопросов для теста на основе следующего контента:\n\n"
