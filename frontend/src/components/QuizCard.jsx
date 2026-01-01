@@ -1,9 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './QuizCard.css';
 
-function QuizCard({ question, questionNumber, totalQuestions, onAnswer }) {
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [showResult, setShowResult] = useState(false);
+function QuizCard({ question, questionNumber, totalQuestions, onAnswer, savedAnswer }) {
+  // Восстанавливаем состояние из savedAnswer, если оно есть
+  const [selectedAnswer, setSelectedAnswer] = useState(savedAnswer?.selectedIndex ?? null);
+  const [showResult, setShowResult] = useState(savedAnswer !== undefined);
+
+  // Обновляем состояние при изменении savedAnswer (при переключении между вопросами)
+  useEffect(() => {
+    if (savedAnswer !== undefined) {
+      setSelectedAnswer(savedAnswer.selectedIndex);
+      setShowResult(true);
+    } else {
+      setSelectedAnswer(null);
+      setShowResult(false);
+    }
+  }, [savedAnswer]);
 
   const handleAnswerClick = (answerIndex) => {
     if (showResult) return; // Не позволяем менять ответ после проверки
@@ -13,7 +25,11 @@ function QuizCard({ question, questionNumber, totalQuestions, onAnswer }) {
 
     const isCorrect = answerIndex === question.correct_answer;
 
-    onAnswer(isCorrect);
+    // Сохраняем и индекс выбранного ответа, и правильность
+    onAnswer({
+      selectedIndex: answerIndex,
+      isCorrect: isCorrect
+    });
   };
 
   const getAnswerClass = (answerIndex) => {

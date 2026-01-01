@@ -1,16 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import QuizCard from './QuizCard';
 import './QuizContainer.css';
 
-function QuizContainer({ questions, onReset }) {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState([]);
-  const [showResults, setShowResults] = useState(false);
+const STORAGE_KEY_INDEX = 'quiz_current_index';
+const STORAGE_KEY_ANSWERS = 'quiz_answers';
+const STORAGE_KEY_SHOW_RESULTS = 'quiz_show_results';
 
-  const handleAnswer = (isCorrect) => {
+function QuizContainer({ questions, onReset }) {
+  // Восстанавливаем состояние из localStorage при монтировании
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() => {
+    const savedIndex = localStorage.getItem(STORAGE_KEY_INDEX);
+    const index = savedIndex ? parseInt(savedIndex, 10) : 0;
+    // Проверяем, что индекс не превышает длину массива вопросов
+    // (на случай, если вопросы изменились)
+    return index;
+  });
+  
+  const [answers, setAnswers] = useState(() => {
+    const savedAnswers = localStorage.getItem(STORAGE_KEY_ANSWERS);
+    return savedAnswers ? JSON.parse(savedAnswers) : [];
+  });
+  
+  const [showResults, setShowResults] = useState(() => {
+    const savedShowResults = localStorage.getItem(STORAGE_KEY_SHOW_RESULTS);
+    return savedShowResults === 'true';
+  });
+
+  // Проверяем корректность индекса при изменении questions
+  useEffect(() => {
+    if (questions && questions.length > 0) {
+      if (currentQuestionIndex >= questions.length) {
+        setCurrentQuestionIndex(0);
+      }
+    }
+  }, [questions, currentQuestionIndex]);
+
+  // Сохраняем currentQuestionIndex в localStorage при изменении
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_INDEX, currentQuestionIndex.toString());
+  }, [currentQuestionIndex]);
+
+  // Сохраняем answers в localStorage при изменении
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_ANSWERS, JSON.stringify(answers));
+  }, [answers]);
+
+  // Сохраняем showResults в localStorage при изменении
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_SHOW_RESULTS, showResults.toString());
+  }, [showResults]);
+
+  const handleAnswer = (answerData) => {
     setAnswers(prevAnswers => {
       const newAnswers = [...prevAnswers];
-      newAnswers[currentQuestionIndex] = isCorrect;
+      newAnswers[currentQuestionIndex] = answerData;
       return newAnswers;
     });
   };
@@ -30,7 +73,7 @@ function QuizContainer({ questions, onReset }) {
   };
 
   const calculateScore = () => {
-    const correctAnswers = answers.filter(a => a === true).length;
+    const correctAnswers = answers.filter(a => a && a.isCorrect === true).length;
     return {
       correct: correctAnswers,
       total: questions.length,
@@ -62,8 +105,10 @@ function QuizContainer({ questions, onReset }) {
   }
 
   const currentQuestion = questions[currentQuestionIndex];
+  // Получаем сохраненный ответ для текущего вопроса
+  const savedAnswer = answers[currentQuestionIndex];
   // Проверяем, что ответ был дан (не undefined)
-  const hasAnswered = typeof answers[currentQuestionIndex] !== 'undefined';
+  const hasAnswered = typeof savedAnswer !== 'undefined';
 
   return (
     <div className="quiz-container">
@@ -74,7 +119,7 @@ function QuizContainer({ questions, onReset }) {
         <div className="progress-bar">
           <div
             className="progress-fill"
-            style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+            style={{ transform: `scaleX(${(currentQuestionIndex + 1) / questions.length})` }}
           />
         </div>
       </div>
@@ -85,6 +130,7 @@ function QuizContainer({ questions, onReset }) {
         questionNumber={currentQuestionIndex + 1}
         totalQuestions={questions.length}
         onAnswer={handleAnswer}
+        savedAnswer={savedAnswer}
       />
 
       <div className="navigation-buttons">
