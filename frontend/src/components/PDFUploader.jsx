@@ -3,7 +3,7 @@ import axios from 'axios';
 import './PDFUploader.css';
 
 function PDFUploader({ onQuizGenerated, onError, onLoading, loading }) {
-  const [inputMode, setInputMode] = useState('pdf'); // 'pdf' или 'text'
+  const [inputMode, setInputMode] = useState('text'); // 'pdf' или 'text'
   const [file, setFile] = useState(null);
   const [text, setText] = useState('');
   const [numQuestions, setNumQuestions] = useState(10);

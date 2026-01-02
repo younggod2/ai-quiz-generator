@@ -1,5 +1,6 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
+const path = require('path');
 
 /**
  * Конфигурация Playwright для E2E тестов
@@ -60,9 +61,10 @@ const config = {
 // Поэтому webServer отключен в CI, чтобы избежать конфликтов портов
 // В локальной разработке Playwright автоматически запускает серверы
 if (!process.env.CI) {
+  const projectRoot = path.resolve(__dirname, '..');
   config.webServer = [
     {
-      command: './start.sh',
+      command: path.join(projectRoot, 'start.sh'),
       url: 'http://localhost:3000',
       reuseExistingServer: true,
       timeout: 120 * 1000,

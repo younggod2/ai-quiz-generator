@@ -97,7 +97,16 @@ async function navigateToQuestion(page, targetIndex) {
  * @param {string} filePath - Путь к PDF файлу
  */
 async function uploadPDFFile(page, filePath) {
+  // Сначала переключаемся в режим PDF, если еще не в нем
+  // Проверяем, виден ли file input, если нет - переключаемся
   const fileInput = page.locator('[data-testid="file-input"]');
+  const isFileInputVisible = await fileInput.isVisible().catch(() => false);
+  
+  if (!isFileInputVisible) {
+    await switchToPDFMode(page);
+  }
+  
+  // Теперь загружаем файл
   await fileInput.setInputFiles(filePath);
   
   // Ждем, пока файл загрузится - проверяем появление имени файла
@@ -140,6 +149,20 @@ async function fillQuizForm(page, options = {}) {
  */
 async function submitQuizForm(page) {
   await page.click('[data-testid="submit-button"]');
+}
+
+/**
+ * Переключается на режим PDF загрузки
+ * @param {import('@playwright/test').Page} page - Страница Playwright
+ */
+async function switchToPDFMode(page) {
+  await page.click('[data-testid="input-mode-pdf"]');
+  // Ждем появления file input
+  try {
+    await page.waitForSelector('[data-testid="file-input"]', { state: 'visible', timeout: 1000 });
+  } catch (e) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 }
 
 /**
@@ -276,6 +299,7 @@ module.exports = {
   uploadPDFFile,
   fillQuizForm,
   submitQuizForm,
+  switchToPDFMode,
   switchToTextMode,
   enterText,
   clearLocalStorage,

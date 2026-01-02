@@ -27,7 +27,10 @@ test.describe('Quiz Flow - PDF Upload', () => {
 
   test('должен загрузить главную страницу', async ({ page }) => {
     await expect(page.locator('[data-testid="app-title"]')).toContainText('Генератор тестов');
-    await expect(page.locator('text=Загрузите PDF документ')).toBeVisible();
+    // Проверяем, что форма загрузки видна (по умолчанию теперь режим текста)
+    await expect(page.locator('[data-testid="pdf-uploader"]')).toBeVisible();
+    // Проверяем, что по умолчанию показывается textarea (режим текста)
+    await expect(page.locator('[data-testid="text-input"]')).toBeVisible();
   });
 
   test('должен загрузить PDF файл через input', async ({ page }) => {
@@ -127,8 +130,9 @@ test.describe('Quiz Flow - PDF Upload', () => {
     
     // Проверяем, что вернулись к форме загрузки
     await expect(page.locator('[data-testid="pdf-uploader"]')).toBeVisible();
-    // File input скрыт через CSS, проверяем видимый drop-zone
-    await expect(page.locator('[data-testid="drop-zone"]')).toBeVisible();
+    // После сброса форма возвращается к режиму по умолчанию (текст)
+    // Проверяем, что виден text-input (режим текста по умолчанию)
+    await expect(page.locator('[data-testid="text-input"]')).toBeVisible();
   });
 
   test('должен показать ошибку при валидации', async ({ page }) => {
