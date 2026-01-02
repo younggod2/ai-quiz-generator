@@ -80,7 +80,7 @@ generate-test-pdf: ## Сгенерировать тестовый PDF
 clean: ## Очистить временные файлы и логи
 	@echo "$(YELLOW)🧹 Очистка временных файлов...$(NC)"
 	@rm -f backend.log frontend.log ollama.log
-	@rm -rf frontend/test-results frontend/playwright-report
+	@rm -rf test-results playwright-report e2e/test-results e2e/playwright-report
 	@find . -type d -name "__pycache__" -exec rm -r {} + 2>/dev/null || true
 	@find . -type f -name "*.pyc" -delete 2>/dev/null || true
 

@@ -10,17 +10,19 @@
     "install:all": "npm install && npm run install:backend && npm run install:frontend",
     "install:backend": "cd backend && (test -d venv || python3 -m venv venv) && ./venv/bin/pip install -r requirements.txt",
     "install:frontend": "cd frontend && npm install",
-    "test:e2e": "cd frontend && npm run test:e2e",
-    "test:e2e:ui": "cd frontend && npm run test:e2e:ui",
-    "test:e2e:smoke": "cd frontend && npm run test:e2e:smoke",
-    "test:e2e:headed": "cd frontend && npm run test:e2e:headed",
-    "test:e2e:debug": "cd frontend && npm run test:e2e:debug",
+    "test:e2e": "playwright test --config=e2e/playwright.config.js",
+    "test:e2e:ui": "playwright test --config=e2e/playwright.config.js --ui",
+    "test:e2e:smoke": "playwright test --config=e2e/playwright.config.js e2e/tests/smoke.spec.js",
+    "test:e2e:headed": "playwright test --config=e2e/playwright.config.js --headed",
+    "test:e2e:debug": "playwright test --config=e2e/playwright.config.js --debug",
     "test:all": "npm run test:e2e",
     "test:pre-push": "npm run test:all",
     "generate-test-pdf": "cd frontend && npm run generate-test-pdf"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.10.0"
   },
   "private": true
 }

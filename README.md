@@ -109,11 +109,12 @@ Quiz/
 │   ├── src/
 │   │   ├── App.jsx            # Главный компонент
 │   │   ├── components/        # React компоненты (с CSS файлами)
-│   ├── e2e/                   # E2E тесты на Playwright
-│   │   ├── tests/             # Тестовые файлы
-│   │   ├── fixtures/          # Тестовые данные
-│   │   └── utils/             # Утилиты для тестов
 │   └── package.json
+├── e2e/                       # E2E тесты на Playwright
+│   ├── tests/                 # Тестовые файлы
+│   ├── fixtures/              # Тестовые данные
+│   ├── utils/                 # Утилиты для тестов
+│   └── playwright.config.js   # Конфигурация Playwright
 ├── .git/
 │   └── hooks/
 │       ├── pre-commit         # Git hook для проверки синтаксиса

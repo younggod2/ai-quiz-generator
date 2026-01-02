@@ -62,7 +62,7 @@ const config = {
 if (!process.env.CI) {
   config.webServer = [
     {
-      command: 'cd ../.. && ./start.sh',
+      command: './start.sh',
       url: 'http://localhost:3000',
       reuseExistingServer: true,
       timeout: 120 * 1000,
