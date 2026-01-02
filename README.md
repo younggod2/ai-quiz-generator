@@ -104,27 +104,48 @@ Quiz/
 │   ├── pdf_processor.py       # Обработка PDF
 │   ├── model_client.py        # Абстракция для работы с моделями (OpenRouter и Ollama)
 │   ├── .env.example           # Пример файла с переменными окружения
-│   └── .env                   # Файл с переменными окружения (создается вручную)
+│   ├── .env                   # Файл с переменными окружения (создается вручную)
+│   └── venv/                  # Виртуальное окружение Python
 ├── frontend/
 │   ├── src/
 │   │   ├── App.jsx            # Главный компонент
-│   │   ├── components/        # React компоненты (с CSS файлами)
-│   └── package.json
+│   │   ├── App.css            # Стили главного компонента
+│   │   ├── index.js           # Точка входа
+│   │   ├── index.css          # Глобальные стили
+│   │   └── components/         # React компоненты (с CSS файлами)
+│   │       ├── PDFUploader.jsx
+│   │       ├── QuizCard.jsx
+│   │       └── QuizContainer.jsx
+│   ├── public/
+│   │   └── index.html         # HTML шаблон
+│   ├── scripts/
+│   │   └── generate-test-pdf.js  # Утилита для генерации тестовых PDF
+│   ├── package.json
+│   └── package-lock.json
 ├── e2e/                       # E2E тесты на Playwright
 │   ├── tests/                 # Тестовые файлы
 │   ├── fixtures/              # Тестовые данные
 │   ├── utils/                 # Утилиты для тестов
 │   └── playwright.config.js   # Конфигурация Playwright
-├── .git/
-│   └── hooks/
-│       ├── pre-commit         # Git hook для проверки синтаксиса
-│       └── pre-push           # Git hook для запуска тестов
-├── .github/
-│   └── workflows/
-│       └── tests.yml          # GitHub Actions workflow для CI/CD
-├── Makefile                    # Удобные команды для разработки
-├── TESTING.md                  # Подробное руководство по тестированию
-├── start.sh                    # Скрипт для запуска всего проекта
+├── docs/                      # Документация проекта
+│   ├── api-reference/         # Документация API
+│   ├── backend-architecture/  # Архитектура backend
+│   ├── frontend-architecture/ # Архитектура frontend
+│   ├── data-processing-pipeline/  # Пайплайн обработки данных
+│   ├── getting-started.md
+│   ├── system-overview.md
+│   ├── technology-stack.md
+│   ├── testing-strategy.md
+│   └── ...                    # Другая документация
+├── tests/                     # Дополнительные тесты
+│   ├── playwright-report/     # Отчеты Playwright
+│   └── test-results/          # Результаты тестов
+├── Makefile                   # Удобные команды для разработки
+├── TESTING.md                 # Подробное руководство по тестированию
+├── CONTRIBUTING.md            # Руководство для контрибьюторов
+├── LICENSE                    # Лицензия MIT
+├── start.sh                   # Скрипт для запуска всего проекта
+├── package.json               # Корневые зависимости (если есть)
 └── README.md
 ```
 
