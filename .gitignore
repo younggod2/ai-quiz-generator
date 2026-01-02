@@ -11,6 +11,14 @@ ENV/
 *.egg-info/
 dist/
 build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.python-version
 
 # Flask
 instance/
@@ -18,7 +26,12 @@ instance/
 
 # Environment variables
 .env
+.env.*
 .env.local
+.env.development
+.env.production
+.env.test
+!.env.example
 
 # Node
 node_modules/
@@ -26,11 +39,16 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+.npm
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+.yarn-integrity
 
 # React
 build/
-.DS_Store
-*.log
 
 # IDE
 .vscode/
@@ -42,6 +60,11 @@ build/
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Temporary files
@@ -49,9 +72,23 @@ Thumbs.db
 *.temp
 
 # Logs
+*.log
 backend.log
 frontend.log
 ollama.log
+
+# Process IDs
+*.pid
+
+# Playwright test results and artifacts
+test-results/
+playwright-report/
+**/test-results/
+**/playwright-report/
+playwright/.cache/
+# Keep test fixtures (sample.pdf, mock-responses.js)
+!frontend/e2e/fixtures/sample.pdf
+!frontend/e2e/fixtures/*.js
 
 
 

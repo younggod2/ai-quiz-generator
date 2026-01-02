@@ -1,0 +1,119 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x]
+        python-version: ['3.11']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: |
+          package-lock.json
+          frontend/package-lock.json
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y poppler-utils
+    
+    - name: Install Python dependencies
+      run: |
+        cd backend
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+    
+    - name: Install root dependencies
+      run: |
+        npm ci
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Generate test PDF
+      run: |
+        cd frontend
+        npm run generate-test-pdf
+    
+    - name: Install Playwright browsers
+      run: |
+        npx playwright install --with-deps chromium
+    
+    - name: Start backend server
+      run: |
+        cd backend
+        source venv/bin/activate
+        python app.py > ../backend.log 2>&1 &
+        echo $! > ../backend.pid
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    
+    - name: Start frontend server
+      run: |
+        cd frontend
+        BROWSER=none npm start > ../frontend.log 2>&1 &
+        echo $! > ../frontend.pid
+    
+    - name: Wait for servers to be ready
+      run: |
+        timeout 120 bash -c 'until curl -f http://localhost:5001/health 2>/dev/null && curl -f http://localhost:3000 2>/dev/null; do sleep 2; done' || true
+        sleep 5
+    
+    - name: Run E2E tests
+      run: |
+        npm run test:e2e
+      env:
+        CI: true
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+    
+    - name: Upload logs
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: server-logs
+        path: |
+          backend.log
+          frontend.log
+        retention-days: 7
+    
+    - name: Cleanup
+      if: always()
+      run: |
+        if [ -f backend.pid ]; then
+          kill $(cat backend.pid) || true
+        fi
+        if [ -f frontend.pid ]; then
+          kill $(cat frontend.pid) || true
+        fi
+

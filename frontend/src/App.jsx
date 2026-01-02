@@ -54,7 +54,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>📚 Генератор тестов</h1>
+        <h1 data-testid="app-title">📚 Генератор тестов</h1>
         <p>Загрузите PDF документ или вставьте текст и получите персонализированный тест.</p>
       </header>
 
@@ -74,7 +74,7 @@ function App() {
         )}
 
         {error && (
-          <div className="error-message">
+          <div className="error-message" data-testid="error-message">
             <p>❌ {error}</p>
           </div>
         )}
